@@ -1,12 +1,14 @@
 #!/bin/bash
 
-docker stop mock-api-service
-docker rm mock-api-service
+IMAGE_NAME="mock-api-service"
 
-go build -o .app
-docker image build -t mock-api-service .
+docker network create -d bridge ms_net
+docker run -d --name mongodb --network ms_net -p 27017:27017 -v mongodb_data:/data/db --restart always -e MONGO_INITDB_ROOT_USERNAME=admin -e MONGO_INITDB_ROOT_PASSWORD=password mongo
 
-rm .app
+docker stop ${IMAGE_NAME} 2>&1>/dev/null
+docker rm ${IMAGE_NAME} 2>&1>/dev/null
+docker rmi ${IMAGE_NAME} 2>&1>/dev/null
 
-docker rmi mock-api-service
-docker run --name mock-api-service -p 8080:8080 -d mock-api-service
+docker build -t ${IMAGE_NAME} .
+docker run --name ${IMAGE_NAME} --network ms_net -p 8080:8080 -d ${IMAGE_NAME}
+

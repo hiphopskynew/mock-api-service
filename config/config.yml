@@ -1,0 +1,6 @@
+mongo:
+  uri: "mongodb://admin:password@localhost:27017/admin"
+  database_name: "mock-api-service"
+  collection_name: "setting"
+
+port: 8080
