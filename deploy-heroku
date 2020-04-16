@@ -1,0 +1,20 @@
+#!/bin/bash
+source $(dirname $0)/.private
+
+MONGO_URI=$(use "mongo_uri")
+
+go build -o .app
+docker image build -t web .
+
+heroku container:login
+
+heroku config:set MONGO_COLLECTION_NAME=setting --app mock-api-service
+heroku config:set MONGO_DATABASE_NAME=mock-api-service --app mock-api-service
+heroku config:set MONGO_URI=${MONGO_URI} --app mock-api-service
+
+heroku container:push web --app mock-api-service
+
+rm .app
+docker rmi web
+
+heroku container:release web --app mock-api-service

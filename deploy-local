@@ -1,0 +1,12 @@
+#!/bin/bash
+
+docker stop mock-api-service
+docker rm mock-api-service
+
+go build -o .app
+docker image build -t mock-api-service .
+
+rm .app
+
+docker rmi mock-api-service
+docker run --name mock-api-service -p 8080:8080 -d mock-api-service
