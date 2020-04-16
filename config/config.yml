@@ -3,4 +3,7 @@ mongo:
   database_name: "mock-api-service"
   collection_name: "setting"
 
+jwt:
+  secret: "thisisjwtsecretkeynakrub"
+
 port: 8080

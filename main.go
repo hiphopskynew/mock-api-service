@@ -8,7 +8,6 @@ import (
 	"github.com/hiphopskynew/mock-api-service/route"
 
 	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
 )
 
 func init() {
@@ -18,8 +17,6 @@ func init() {
 
 func main() {
 	e := echo.New()
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
 	route.RegisterRoutes(e)
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", config.Config.ServicePort)))
 }

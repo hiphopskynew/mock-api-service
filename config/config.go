@@ -17,9 +17,13 @@ type (
 		DatabaseName   string `mapstructure:"database_name"`
 		CollectionName string `mapstructure:"collection_name"`
 	}
+	JWT struct {
+		Secret string `mapstructure:"secret"`
+	}
 	config struct {
-		MongoConfig `mapstructure:"mongo"`
 		ServicePort int `mapstructure:"port"`
+		MongoConfig `mapstructure:"mongo"`
+		JWT         `mapstructure:"jwt"`
 	}
 )
 
