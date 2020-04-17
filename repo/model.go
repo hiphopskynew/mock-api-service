@@ -7,7 +7,41 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type Settings []Setting
+type settingInSvcMemory map[string]Setting
+
+func NewSettingInServiceMemory() settingInSvcMemory {
+	return settingInSvcMemory{}
+}
+func (s settingInSvcMemory) SetA(settings ...Setting) {
+	for _, setting := range settings {
+		s.Set(setting.ID.Hex(), setting)
+	}
+}
+func (s settingInSvcMemory) Set(k string, settings ...Setting) {
+	for _, setting := range settings {
+		s[k] = setting
+	}
+}
+func (s settingInSvcMemory) Unset(k string) {
+	delete(s, k)
+}
+func (s settingInSvcMemory) Get(k string) *Setting {
+	if v, ok := s[k]; ok {
+		return &v
+	}
+	return nil
+}
+func (s settingInSvcMemory) GetAll() *[]Setting {
+	all := []Setting{}
+	for _, setting := range s {
+		all = append(all, setting)
+	}
+	if len(all) > 0 {
+		return &all
+	} else {
+		return nil
+	}
+}
 
 type Setting struct {
 	ID        primitive.ObjectID `json:"_id" bson:"_id"`
@@ -18,14 +52,16 @@ type Setting struct {
 
 type (
 	USettingResponse struct {
+		Format int               `json:"format" bson:"format"`
 		Header map[string]string `json:"header" bson:"header"`
 		Body   primitive.M       `json:"body" bson:"body"`
 		Code   int               `json:"code" bson:"code"`
 	}
 	USetting struct {
-		Method           string           `json:"method" bson:"method"`
-		URI              string           `json:"uri" bson:"uri"`
-		USettingResponse USettingResponse `json:"response" bson:"response"`
+		Method            string             `json:"method" bson:"method"`
+		URI               string             `json:"uri" bson:"uri"`
+		ResponseFormat    int                `json:"response_format" bson:"response_format"`
+		USettingResponses []USettingResponse `json:"responses" bson:"responses"`
 	}
 )
 
@@ -44,9 +80,8 @@ func (s *Setting) Bind(ue interface{}) {
 		d := ue.(*USetting)
 		s.URI = strings.ReplaceAll(strings.TrimSpace(d.URI), " ", "%20")
 		s.Method = strings.ToUpper(strings.TrimSpace(d.Method))
-		s.USettingResponse.Header = d.USettingResponse.Header
-		s.USettingResponse.Body = d.USettingResponse.Body
-		s.USettingResponse.Code = d.USettingResponse.Code
+		s.ResponseFormat = d.ResponseFormat
+		s.USettingResponses = d.USettingResponses
 	}
 }
 func (s *Setting) SetModifyTimestamp() {

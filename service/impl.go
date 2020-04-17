@@ -2,7 +2,9 @@ package service
 
 import (
 	"fmt"
+	"math/rand"
 	"net/http"
+	"time"
 
 	"github.com/hiphopskynew/mock-api-service/repo"
 
@@ -89,15 +91,27 @@ func InvokeConfig(c echo.Context) error {
 	if e != nil {
 		return c.String(http.StatusBadRequest, "routing not match")
 	}
-	var (
-		cfgBody   = setting.USetting.USettingResponse.Body
-		cfgHeader = setting.USetting.USettingResponse.Header
-		cfgCode   = setting.USetting.USettingResponse.Code
-	)
 
-	for k, v := range cfgHeader {
+	var resp repo.USettingResponse
+	resps := setting.USetting.USettingResponses
+	for _, item := range resps {
+		if item.Format == setting.ResponseFormat {
+			resp = item
+		}
+	}
+
+	if resp.Code == 0 {
+		random := rand.New(rand.NewSource(time.Now().UnixNano()))
+		random.Shuffle(len(resps), func(i, j int) {
+			resps[i], resps[j] = resps[j], resps[i]
+		})
+		resp = resps[0]
+	}
+
+	sb, sh, sc := resp.Body, resp.Header, resp.Code
+	for k, v := range sh {
 		c.Response().Header().Set(k, v)
 	}
-	c.Response().WriteHeader(cfgCode)
-	return c.JSON(cfgCode, cfgBody)
+	c.Response().WriteHeader(sc)
+	return c.JSON(sc, sb)
 }
