@@ -19,7 +19,8 @@ type Mgo struct {
 }
 
 func NewMongoDatabase(uri, db, col string) *Mgo {
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
 	if err != nil {
 		panic(err)
@@ -43,8 +44,8 @@ func (o *Mgo) GetSetting(ctx context.Context, id primitive.ObjectID) (Setting, e
 	}
 	return setting, r.Err()
 }
-func (o *Mgo) GetSettingList(ctx context.Context) ([]Setting, error) {
-	settings := []Setting{}
+func (o *Mgo) GetSettingList(ctx context.Context) (Settings, error) {
+	settings := Settings{}
 	cur, e := o.db.Find(ctx, bson.M{})
 	if e != nil && e != mongo.ErrNoDocuments {
 		return settings, e

@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/hiphopskynew/mock-api-service/config"
 	"github.com/hiphopskynew/mock-api-service/repo"
 	"github.com/hiphopskynew/mock-api-service/route"
-
 	"github.com/labstack/echo"
 )
 
@@ -18,5 +18,5 @@ func init() {
 func main() {
 	e := echo.New()
 	route.RegisterRoutes(e)
-	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", config.Config.ServicePort)))
+	log.Fatal(e.Start(fmt.Sprintf(":%d", config.Config.ServicePort)))
 }

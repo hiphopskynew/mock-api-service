@@ -7,6 +7,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+type Settings []Setting
+
 type Setting struct {
 	ID        primitive.ObjectID `json:"_id" bson:"_id"`
 	USetting  `bson:"config"`
@@ -17,7 +19,7 @@ type Setting struct {
 type (
 	USettingResponse struct {
 		Header map[string]string `json:"header" bson:"header"`
-		Body   interface{}       `json:"body" bson:"body"`
+		Body   primitive.M       `json:"body" bson:"body"`
 		Code   int               `json:"code" bson:"code"`
 	}
 	USetting struct {
@@ -29,27 +31,26 @@ type (
 
 func NewSetting() *Setting {
 	now := time.Now()
-	e := new(Setting)
-	e.ID = primitive.NewObjectID()
-	e.CreatedAt = now
-	e.UpdatedAt = now
-	e.Bind(NewUSetting())
-	return e
+	s := new(Setting)
+	s.ID = primitive.NewObjectID()
+	s.CreatedAt = now
+	s.UpdatedAt = now
+	s.Bind(NewUSetting())
+	return s
 }
-func (e *Setting) Bind(ue interface{}) {
-
+func (s *Setting) Bind(ue interface{}) {
 	switch ue.(type) {
 	case *USetting:
 		d := ue.(*USetting)
-		e.URI = strings.ReplaceAll(strings.TrimSpace(d.URI), " ", "%20")
-		e.Method = strings.ToUpper(strings.TrimSpace(d.Method))
-		e.USettingResponse.Header = d.USettingResponse.Header
-		e.USettingResponse.Body = d.USettingResponse.Body
-		e.USettingResponse.Code = d.USettingResponse.Code
+		s.URI = strings.ReplaceAll(strings.TrimSpace(d.URI), " ", "%20")
+		s.Method = strings.ToUpper(strings.TrimSpace(d.Method))
+		s.USettingResponse.Header = d.USettingResponse.Header
+		s.USettingResponse.Body = d.USettingResponse.Body
+		s.USettingResponse.Code = d.USettingResponse.Code
 	}
 }
-func (e *Setting) SetModifyTimestamp() {
-	e.UpdatedAt = time.Now()
+func (s *Setting) SetModifyTimestamp() {
+	s.UpdatedAt = time.Now()
 }
 
 func NewUSetting() *USetting {

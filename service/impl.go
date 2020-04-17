@@ -99,14 +99,5 @@ func InvokeConfig(c echo.Context) error {
 		c.Response().Header().Set(k, v)
 	}
 	c.Response().WriteHeader(cfgCode)
-
-	body := cfgBody
-	switch cfgBody.(type) {
-	case primitive.D:
-		tb := cfgBody.(primitive.D)
-		body = tb.Map()
-	case string:
-		return c.String(cfgCode, cfgBody.(string))
-	}
-	return c.JSON(cfgCode, body)
+	return c.JSON(cfgCode, cfgBody)
 }
